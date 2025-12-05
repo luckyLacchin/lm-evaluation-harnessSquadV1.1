@@ -84,17 +84,20 @@ class SQuAD1(ConfigurableTask):
     def construct_requests(self, doc, ctx, **kwargs):
         """
         Single generate_until request: model generates the answer.
-        We ignore extra kwargs (apply_chat_template, etc.) and set repeats=1.
+        We ignore extra kwargs (apply_chat_template, chat_template, etc.)
+        and explicitly set repeats=1.
         """
-        return [
-            Instance(
-                request_type="generate_until",
-                doc=doc,
-                arguments=(ctx, {"until": ["\n"]}),
-                idx=0,
-                repeats=1,   # <-- important
-            )
-        ]
+        inst = Instance(
+            request_type="generate_until",
+            doc=doc,
+            arguments=(ctx, {"until": ["\n"]}),
+            idx=0,
+        )
+
+        # Make 100% sure repeats is an int, not None
+        inst.repeats = 1
+
+        return [inst]
 
 
     # ------------ metrics ------------
